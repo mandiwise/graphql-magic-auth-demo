@@ -1,6 +1,10 @@
 import { gql } from "apollo-server-express";
 
 const typeDefs = gql`
+  type AuthPayload {
+    user: User
+  }
+
   type User {
     id: ID!
     email: String!
@@ -10,6 +14,11 @@ const typeDefs = gql`
   type Query {
     user(id: ID!): User!
     users: [User]
+  }
+
+  type Mutation {
+    login: AuthPayload
+    logout: Boolean
   }
 `;
 
