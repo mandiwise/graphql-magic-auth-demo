@@ -1,0 +1,51 @@
+<html>
+
+<head>
+  <title>GraphQL + Magic Link Demo</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://cdn.jsdelivr.net/npm/magic-sdk/dist/magic.js"></script>
+  <script>
+    const magic = new Magic("<%= MAGIC_PUBLISHABLE_KEY %>");
+
+    const render = async (token) => {
+      let html;
+      if (!token) {
+        html = `
+          <h1>Please sign up or login</h1>
+          <form onsubmit="handleLogin(event)">
+            <input type="email" name="email" required="required" placeholder="Enter your email" />
+            <button type="submit">Send</button>
+          </form>
+        `;
+      } else {
+        html = `
+          <h1>Token</h1>
+          <pre style="white-space: pre-wrap; word-wrap: break-word">${token}</pre>
+          <button onclick="handleLogout()">Logout</button>
+        `
+      }
+      document.getElementById("app").innerHTML = html;
+    };
+
+    const handleLogin = async event => {
+      event.preventDefault();
+      const email = new FormData(event.target).get("email");
+      if (email) {
+        const didToken = await magic.auth.loginWithMagicLink({ email });
+        render(didToken);
+      }
+    };
+
+    const handleLogout = async () => {
+      await magic.user.logout();
+      render();
+    };
+  </script>
+</head>
+
+<body onload="render()">
+  <div id="app">Loading...</div>
+</body>
+
+</html>

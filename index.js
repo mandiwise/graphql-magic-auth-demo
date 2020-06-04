@@ -9,6 +9,15 @@ import typeDefs from "./graphql/typeDefs";
 const port = process.env.PORT;
 const app = express();
 
+app.set("views");
+app.set("view engine", "ejs");
+
+app.get("/login", function (req, res) {
+  res.render("login", {
+    MAGIC_PUBLISHABLE_KEY: process.env.MAGIC_PUBLISHABLE_KEY
+  });
+});
+
 /* Apollo Server */
 
 const server = new ApolloServer({
