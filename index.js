@@ -1,6 +1,8 @@
 import { ApolloServer } from "apollo-server-express";
+import { SDKError as MagicSDKError } from "@magic-sdk/admin";
 import express from "express";
 
+import magic from "./config/magic";
 import resolvers from "./graphql/resolvers";
 import typeDefs from "./graphql/typeDefs";
 
@@ -18,11 +20,44 @@ app.get("/login", function (req, res) {
   });
 });
 
+/* Magic Link Middleware */
+
+const didtCheck = function (req, res, next) {
+  if (!!req.headers.authorization) {
+    try {
+      const didToken = magic.utils.parseAuthorizationHeader(
+        req.headers.authorization
+      );
+      magic.token.validate(didToken);
+
+      req.user = {
+        issuer: magic.token.getIssuer(didToken),
+        publicAddress: magic.token.getPublicAddress(didToken),
+        claim: magic.token.decode(didToken)[1]
+      };
+    } catch (error) {
+      res.status(401).send();
+
+      return error instanceof MagicSDKError
+        ? next(error)
+        : next({ message: "Invalid DID token" });
+    }
+  }
+
+  next();
+};
+
+app.use(didtCheck);
+
 /* Apollo Server */
 
 const server = new ApolloServer({
   typeDefs,
-  resolvers
+  resolvers,
+  context: ({ req }) => {
+    const user = req.user || null;
+    return { user };
+  }
 });
 
 server.applyMiddleware({ app });
