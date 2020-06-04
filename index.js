@@ -1,8 +1,10 @@
-import { ApolloServer } from "apollo-server-express";
+import { ApolloServer, makeExecutableSchema } from "apollo-server-express";
+import { applyMiddleware } from "graphql-middleware";
 import { SDKError as MagicSDKError } from "@magic-sdk/admin";
 import express from "express";
 
 import magic from "./config/magic";
+import permissions from "./graphql/permissions";
 import resolvers from "./graphql/resolvers";
 import typeDefs from "./graphql/typeDefs";
 
@@ -51,9 +53,10 @@ app.use(didtCheck);
 
 /* Apollo Server */
 
+const schema = makeExecutableSchema({ typeDefs, resolvers });
+
 const server = new ApolloServer({
-  typeDefs,
-  resolvers,
+  schema: applyMiddleware(schema, permissions),
   context: ({ req }) => {
     const user = req.user || null;
     return { user };
