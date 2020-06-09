@@ -22,7 +22,7 @@ app.get("/login", function (req, res) {
   });
 });
 
-/* Magic Link Middleware */
+/* Magic Middleware */
 
 const didtCheck = function (req, res, next) {
   if (!!req.headers.authorization) {

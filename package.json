@@ -1,5 +1,5 @@
 {
-  "name": "graphql-magic-link-demo",
+  "name": "graphql-magic-auth-demo",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
